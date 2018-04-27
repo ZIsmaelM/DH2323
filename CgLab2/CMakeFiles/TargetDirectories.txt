@@ -1,0 +1,3 @@
+/home/zim/Desktop/Spring2018Courses/DH2323/CgLab2/CMakeFiles/edit_cache.dir
+/home/zim/Desktop/Spring2018Courses/DH2323/CgLab2/CMakeFiles/rebuild_cache.dir
+/home/zim/Desktop/Spring2018Courses/DH2323/CgLab2/CMakeFiles/SecondLab.dir
