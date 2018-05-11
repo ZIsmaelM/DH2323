@@ -1,4 +1,4 @@
-#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
 
 #IncludeRegexScan: ^.*$
 
@@ -6,21 +6,21 @@
 
 #IncludeRegexTransform: 
 
-/home/zim/Desktop/Spring2018Courses/DH2323/CgLab2/SDLauxiliary.h
+/home/zim/Desktop/DH2323/CgLab2/SDLauxiliary.h
 SDL.h
-/home/zim/Desktop/Spring2018Courses/DH2323/CgLab2/SDL.h
+/home/zim/Desktop/DH2323/CgLab2/SDL.h
 iostream
 -
 glm/glm.hpp
 -
 
-/home/zim/Desktop/Spring2018Courses/DH2323/CgLab2/TestModel.h
+/home/zim/Desktop/DH2323/CgLab2/TestModel.h
 glm/glm.hpp
 -
 vector
 -
 
-/home/zim/Desktop/Spring2018Courses/DH2323/CgLab2/skeleton.cpp
+/home/zim/Desktop/DH2323/CgLab2/skeleton.cpp
 iostream
 -
 glm/glm.hpp
@@ -28,9 +28,9 @@ glm/glm.hpp
 SDL.h
 -
 SDLauxiliary.h
-/home/zim/Desktop/Spring2018Courses/DH2323/CgLab2/SDLauxiliary.h
+/home/zim/Desktop/DH2323/CgLab2/SDLauxiliary.h
 TestModel.h
-/home/zim/Desktop/Spring2018Courses/DH2323/CgLab2/TestModel.h
+/home/zim/Desktop/DH2323/CgLab2/TestModel.h
 unistd.h
 -
 

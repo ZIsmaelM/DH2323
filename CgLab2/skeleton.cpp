@@ -22,26 +22,25 @@ vector<Triangle> triangles;
 float focalLength;
 float alpha = 2 * atan(((float)SCREEN_HEIGHT/2) / (float)SCREEN_WIDTH);
 
-float speed = 0.1;
-float yaw = 0;
-vec3 r1 = vec3(cos(yaw),0,sin(yaw));
-vec3 r2 = vec3(0,1,0);
-vec3 r3 = vec3(-sin(yaw),0,cos(yaw));
-mat3 R = mat3(r1,r2,r3);
-
 //camera
+float speed = 0.1;
+float yaw = M_PI/8;
+int axis = 0;
+float degreeH = 0;
+float degreeV = 0;
+vec3 rotRight = vec3(cos(yaw),0,sin(yaw));
+vec3 rotDown = vec3(0,1,0);
+vec3 rotForward = vec3(-sin(yaw),0,cos(yaw));
 float camX = 0;
 float camY = 0;
 float camZ = -3;
 vec3 camOrig = vec3(camX,camY,camZ);
 vec3 cameraPos = vec3(camX,camY,camZ);	// -1 to 1 in x,y,z coords
-vec3 camRight;
-vec3 camDown;
-vec3 camForward;
 
 //light
 vec3 lightPos(0,-0.5,-0.7);
 vec3 lightColor = 14.f * vec3(1,1,1);
+vec3 indirectLight = 0.5f*vec3( 1, 1, 1 );
 // ----------------------------------------------------------------------------
 // STRUCTS
 
@@ -63,7 +62,7 @@ void Update();
 void Draw();
 bool ClosestIntersection(Ray ray, const vector<Triangle>& triangles, Intersection& closestIntersection);
 vec3 DirectLight(const Intersection& i);
-vec3 CalculateUnitVec3(vec3 a);
+vec3 DirectLightOther(const Intersection& i);
 
 float ComputeDistance(vec3 v, vec3 u) {
 	float a = pow(u[0]-v[0],2);
@@ -72,13 +71,24 @@ float ComputeDistance(vec3 v, vec3 u) {
 
 	return float(sqrt(a + b + c));
 }
+float testAngle = 0;
+void Rotate(vec3& v) {
+	// testAngle += yaw;
+	if (axis == 0) {
+		rotRight = vec3(1, 0, 0);
+		rotDown = vec3(0, cos(degreeV), -sin(degreeV));
+		rotForward = vec3(0, sin(degreeV), cos(degreeV));
+	} else {
+		rotRight = vec3(cos(degreeH), 0, sin(degreeH));
+		rotDown = vec3(0, 1, 0);
+		rotForward = vec3(-sin(degreeH), 0, cos(degreeH));
+	}
 
-void Rotate() {
-	int temp = 2;
-	r1 = vec3(temp*cos(yaw),0,temp*sin(yaw));
-	r2 = vec3(0,1,0);
-	r3 = vec3(temp*(-sin(yaw)),0,temp*cos(yaw));
-	R = mat3(r1,r2,r3);
+	float rotX = glm::dot(rotRight, v);
+	float rotY = glm::dot(rotDown, v);
+	float rotZ = glm::dot(rotForward, v);
+
+	v = vec3(rotX, rotY, rotZ);
 }
 
 int main( int argc, char* argv[] )
@@ -91,8 +101,8 @@ int main( int argc, char* argv[] )
 	{
 		Update();
 		Draw();
-		cout << "Finished Rendering" << endl;
-		//usleep(51000000);	// delay for 51s
+		// cout << "Finished Rendering" << endl;
+		// usleep(51000000);	// delay for 51s
 	}
 
 	SDL_SaveBMP( screen, "screenshot.bmp" );
@@ -107,41 +117,70 @@ void Update()
 	t = t2;
 	cout << "Render time: " << dt << " ms." << endl;
 
-	// Uint8* keystate = SDL_GetKeyState( 0 );
-	// if( keystate[SDLK_UP] ) {
-	// 	// Move camera forward
-	// 	camZ += speed;
-	// 	cameraPos = vec3(camX,camY,camZ);
-	// }
-	// if( keystate[SDLK_DOWN] ) {
-	// 	// Move camera backward
-	// 	camZ -= speed;
-	// 	cameraPos = vec3(camX,camY,camZ);
-	// }
-	// if( keystate[SDLK_LEFT] ) {
-	// 	// Move camera to the left
-	// 	camX -= speed;
-	// 	yaw -= M_PI/16;
+	Uint8* keystate = SDL_GetKeyState( 0 );
+	//Camera movement
+	if( keystate[SDLK_r] ) {
+		degreeV = 0;
+		degreeH = 0;
+		cameraPos = camOrig;
+	}
+	if( keystate[SDLK_UP] ) {
+		// Move camera forward
+		//camZ += speed;
+		degreeV += yaw;
+		axis = 0;
+		cameraPos = camOrig;
+		Rotate(cameraPos);
+		//cameraPos = vec3(camX,camY,camZ);
+	}
+	if( keystate[SDLK_DOWN] ) {
+		// Move camera backward
+		//camZ -= speed;
+		degreeV -= yaw;
+		axis = 0;
+		cameraPos = camOrig;
+		Rotate(cameraPos);
+		//cameraPos = vec3(camX,camY,camZ);
+	}
+	if( keystate[SDLK_LEFT] ) {
+		// Move camera to the left
+		//camX -= speed;
+		degreeH -= yaw;
+		axis = 1;
+		cameraPos = camOrig;
+		Rotate(cameraPos);
+		//cameraPos = vec3(camX,camY,camZ);
+	}
+	if( keystate[SDLK_RIGHT] ) {
+		// Move camera to the right
+		//camX += speed;
+		degreeH += yaw;
+		axis = 1;
+		cameraPos = camOrig;
+		Rotate(cameraPos);
+		//cameraPos = vec3(camX,camY,camZ);
+	}
 
-	// 	Rotate();
-	// 	camRight = vec3(R[0][0], R[0][1], R[0][2]);
-	// 	camDown = vec3(R[1][0], R[1][1], R[1][2]);
-	// 	camForward = vec3(R[2][0], R[2][1], R[2][2]);
-
-	// 	cameraPos = R[0];//camRight + camForward + camOrig; //vec3(camX,camY,camZ) + right + forward;
-	// }
-	// if( keystate[SDLK_RIGHT] ) {
-	// 	// Move camera to the right
-	// 	camX += speed;
-	// 	yaw += M_PI/16;
-
-	// 	Rotate();
-	// 	camRight = vec3(R[0][0], R[0][1], R[0][2]);
-	// 	camDown = vec3(R[1][0], R[1][1], R[1][2]);
-	// 	camForward = vec3(R[2][0], R[2][1], R[2][2]);
-
-	// 	cameraPos = R[0];//camRight + camForward + camOrig; //vec3(camX,camY,camZ) + right + forward;
-	// }
+	//Light source movement
+	float lightSpeed = 0.1;
+	if( keystate[SDLK_w] ) {
+		lightPos.z += lightSpeed;
+	}
+	if( keystate[SDLK_s] ) {
+		lightPos.z -= lightSpeed;
+	}
+	if( keystate[SDLK_a] ) {
+		lightPos.x -= lightSpeed;
+	}
+	if( keystate[SDLK_d] ) {
+		lightPos.x += lightSpeed;
+	}
+	if( keystate[SDLK_q] ) {
+		lightPos.y -= lightSpeed;
+	}
+	if( keystate[SDLK_e] ) {
+		lightPos.y += lightSpeed;
+	}
 }
 
 void Draw()
@@ -158,14 +197,15 @@ void Draw()
 		for( int x=0; x<SCREEN_WIDTH; ++x )
 		{
 			ray.orig = cameraPos;
-			ray.dir = camRight + camForward + vec3(x-SCREEN_WIDTH/2, (y-SCREEN_HEIGHT/2), focalLength);
+			ray.dir = vec3(x-SCREEN_WIDTH/2, (y-SCREEN_HEIGHT/2), focalLength);
 			ray.dir = glm::normalize(ray.dir);
+			Rotate(ray.dir);
 
 			vec3 color = vec3(0,0,0);
 			if(ClosestIntersection(ray, triangles, pixel)) {
 				Triangle tri = triangles[pixel.index];
 				vec3 light = DirectLight(pixel);
-				color = light*tri.color;//tri.color;
+				color = (light+indirectLight)*tri.color;//tri.color;
 			}
 
 			PutPixelSDL( screen, x, y, color );
@@ -213,25 +253,37 @@ bool ClosestIntersection(Ray ray, const vector<Triangle>& triangles, Intersectio
 
 vec3 DirectLight(const Intersection& i) {
 
+	float tShadow = 0.001f;
+
 	Triangle t = triangles[i.index];
-	float r = ComputeDistance(lightPos,i.pos);
+	float r = ComputeDistance(i.pos,lightPos);
 	float A = 4*M_PI*pow(r,2);
+	
 	vec3 B = lightColor / A;
-
+	
 	Ray shadowRay;
-	shadowRay.orig = i.pos;
-	shadowRay.dir = lightPos - i.pos;
+	// Set the ray origin
+	if (i.pos[0] - tShadow <= -1 || i.pos[1] - tShadow <= -1)
+		shadowRay.orig = i.pos + tShadow;
+	else
+		shadowRay.orig = i.pos - tShadow;
 
-	vec3 unitVecNorm = CalculateUnitVec3(t.normal);
-	vec3 surfaceToLight = CalculateUnitVec3(shadowRay.dir);
-	float unitVec = std::max(0.f, glm::dot(unitVecNorm,surfaceToLight));
+	shadowRay.dir = lightPos - shadowRay.orig;
+	shadowRay.dir = glm::normalize(shadowRay.dir);
+
+	//vec3 rXn = t.normal*shadowRay.dir;
+	//float a = std::max(rXn[0],rXn[1]);
+	//float r_n = std::max(a,rXn[2]);
+	//float r_n = (rXn[0]+rXn[1]+rXn[2])/3;	// nice lighting results
+	//float unitVec = std::max(0.f, r_n);
+	
+	float unitVec = std::max(0.f,glm::dot(t.normal,shadowRay.dir));
 
 	Intersection objectIntersect;
 	if (ClosestIntersection(shadowRay, triangles, objectIntersect)) {
 		if(objectIntersect.dist < r)
 			return vec3(0,0,0);
 	}
-
 	vec3 D = B*unitVec;
 
 	return D;
@@ -249,11 +301,4 @@ void InterpolateVec3( vec3 a, vec3 b, vector<vec3>& result) {
 			result[i][j] = a[j] + t;
 		}
 	}
-}
-
-vec3 CalculateUnitVec3(vec3 a) {
-	float denom = sqrt(pow(a[0],2)+pow(a[1],2)+pow(a[2],2));
-	vec3 result = vec3(a[0]/denom, a[1]/denom, a[2]/denom);
-
-	return result;
 }
