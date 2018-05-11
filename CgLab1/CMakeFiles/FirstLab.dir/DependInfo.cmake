@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/zim/Desktop/Spring2018Courses/DH2323/CgLab1/skeleton.cpp" "/home/zim/Desktop/Spring2018Courses/DH2323/CgLab1/CMakeFiles/FirstLab.dir/skeleton.cpp.o"
+  "/home/zim/Desktop/DH2323/CgLab1/skeleton.cpp" "/home/zim/Desktop/DH2323/CgLab1/CMakeFiles/FirstLab.dir/skeleton.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
