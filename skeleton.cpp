@@ -62,7 +62,7 @@ struct Vertex {
 	vec3 position;
 	vec3 normal;
 	vec3 reflectance;
-	//vec3 origin3D;
+	vec3 origin3D;
 };
 
 void Update();
@@ -258,9 +258,9 @@ void Draw() {
 		vertices[0].position = RotateCamera(triangles[i].v0);
 		vertices[1].position = RotateCamera(triangles[i].v1);
 		vertices[2].position = RotateCamera(triangles[i].v2);
-		// vertices[0].origin3D = triangles[i].v0;
-		// vertices[1].origin3D = triangles[i].v1;
-		// vertices[2].origin3D = triangles[i].v2;
+		vertices[0].origin3D = triangles[i].v0;
+		vertices[1].origin3D = triangles[i].v1;
+		vertices[2].origin3D = triangles[i].v2;
 
 		// set reflection and normal
 		float constantRef = 15.f;
